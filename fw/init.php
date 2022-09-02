@@ -1,8 +1,9 @@
 <?php
+use Fw\Core\Application;
 session_start();
 
 spl_autoload_register(static function ($class) {
-    $filename = strtolower($class);
+    $filename = mb_strtolower($class);
     $filename = str_replace("\\", DIRECTORY_SEPARATOR, $filename);
     $filename = $_SERVER["DOCUMENT_ROOT"] . DIRECTORY_SEPARATOR . $filename . ".php";
     try {
@@ -15,3 +16,8 @@ spl_autoload_register(static function ($class) {
         echo $exception;
     }
 });
+
+define('ROOT_PATH', __DIR__);
+define("CORE_INIT", true);
+
+$app = Application::getInstance();
