@@ -1,25 +1,29 @@
 <?php
 namespace Fw\Core;
 
+use Fw\Traits\Singleton;
+
 class Page
 {
+    use Singleton;
+
     private array $page;
-    private string $leftLimiter = '{{';
-    private string $rightLimiter = '}}';
+    public string $leftLimiter = '{{ ';
+    public string $rightLimiter = ' }}';
 
-    public function addJs(string $src): void
+    public static function addJs(string $src): void
     {
-        $this->addElement($src, 'js', true);
+        self::getInstance()->addElement($src, 'js', true);
     }
 
-    public function addCss(string $link): void
+    public static function addCss(string $link): void
     {
-        $this->addElement($link, 'css', true);
+        self::getInstance()->addElement($link, 'css', true);
     }
 
-    public function addString(string $str): void
+    public static function addString(string $str): void
     {
-        $this->addElement($str, 'string', false);
+        self::getInstance()->addElement($str, 'string', false);
     }
 
     public function setProperty(string $id, mixed $value): void
@@ -32,11 +36,10 @@ class Page
         return $this->page['properties'][$id];
     }
 
-    public function showProperty(string $id): array
+    public function showProperty(string $id): void
     {
         $macros = $this->leftLimiter . (string)($id) . $this->rightLimiter;
-        $value = "<?={$this->page['properties']['id']}?>";
-        return array($macros => $value);
+        echo "<?={$macros}?>";
     }
 
     public function getAllReplace(): ?array
@@ -45,44 +48,53 @@ class Page
             return Null;
         }
         $properties = array();
-        foreach (array_keys($this->page['properties']) as $id)
+        foreach ($this->page['properties'] as $id => $value)
         {
-            $properties[] = $this->showProperty($id);
+            $properties[$this->leftLimiter . $id . $this->rightLimiter] = $value;
         }
         return $properties;
     }
 
-    public function showHead()
+    public function showCss(): void
     {
-        $head = "";
-        foreach ($this->page['static'] as $element) {
-            if ($element['type'] == 'css') {
-                $head .= "<link rel=\"stylesheet\" href=\"{$element}\">\n";
-            }
-            if ($element['type'] == 'string') {
-                $head .= "{$element}\n";
-            }
-            if ($element['type'] == 'js') {
-                $head .= "<script src=\"{$element}\"></script>\n";
-            }
+        foreach ($this->page['css'] as $link) {
+            echo "<link rel=\"stylesheet\" href=\"{$link}\">\n";
         }
-        return $head;
+    }
+
+    public function showJs(): void
+    {
+        foreach ($this->page['js'] as $src) {
+            echo "<script src=\"{$src}\"></script>\n";
+        }
+    }
+
+    public function showString(): void
+    {
+        foreach ($this->page['string'] as $str) {
+            echo "{$str}\n";
+        }
+    }
+    public function showHead(): void
+    {
+        $this->showCss();
+        $this->showString();
+        $this->showJs();
     }
 
     private function addElement(string $src, string $type, bool $unique): void
     {
-        $head = $this->page['head'];
-        if (!isset($head)) {
-            $head = array();
+        $type = $this->page[$type];
+        if (!isset($type)) {
+            $type = array();
         }
         if ($unique) {
             $hash = md5($src . $type);
             if (!isset($this->$head['hash'])) {
-                $head[$hash] = array('src' => $src, 'type' => $type);
+                $type[$hash] = $src;
             }
         } else {
-            $head[] = array('src' => $src, 'type' => $type);
+            $type[] = $src;
         }
-
     }
 }

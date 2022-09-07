@@ -1,59 +1,67 @@
 <?php
 namespace Fw\Core;
 use Fw\Traits\Singleton;
-use Fw\Core\Config;
-
+use Fw\Core\Template as PageTemplate;
+use Fw\Core\Component\Template;
 final class Application
 {
     use Singleton;
 
-    private static array $components = [];
-    private static $pager = null;
-    private static $template = null;
-    private static $content = null;
+    private array $components = [];
+    private ?Page $pager = null;
+    private ?PageTemplate $template = null;
+    private ?string $content = null;
+    private ?Request $request = null;
+    private ?Server $server = null;
 
     private function __construct()
     {
-        self::$pager = new Page();
-        self::$template = Template::getInstance();
+        $this->pager = Page::getInstance();
+        $this->template = PageTemplate::getInstance();
+        $this->request = new Request();
+        $this->server = new Server();
     }
 
     public function header(): void
     {
-        self::startBuffer();
-        $header = self::$template->getHeader();
+        $this->startBuffer();
+        $header = $this->template->getHeader();
         echo $header;
     }
 
-    public function footer()
-        // demo
+    public function footer(): void
     {
-        $footer = self::$template->getFooter();
+        $footer = $this->template->getFooter();
         echo $footer;
-        self::endBuffer();
+        $this->endBuffer();
     }
 
-    public static function endBuffer()
+    public function getRequest(): ?Request
+    {
+        return $this->request;
+    }
+
+    public function getServer(): ?Server
+    {
+        return $this->server;
+    }
+
+    public function restartBuffer(): void
+    {
+        ob_clean();
+    }
+
+    private function endBuffer(): void
     {
         $content = ob_get_clean();
-        $properties = self::$pager->getAllReplace();
-        if ($properties) {
-            foreach ($properties as $property) {
-                foreach ($property as $macros => $value) {
-                    $content = str_replace($macros, $value, $content);
-                }
-            }
-        }
+        $properties = $this->pager->getAllReplace();
+        $content = str_replace(array_keys($properties), array_values($properties), $content);
         echo $content;
     }
 
-    private static function startBuffer():void
+    private function startBuffer():void
     {
         ob_start();
     }
 
-    private static function restartBuffer(): void
-    {
-        ob_clean();
-    }
 }

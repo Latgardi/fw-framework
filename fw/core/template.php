@@ -1,41 +1,44 @@
 <?php
+
 namespace Fw\Core;
+
 use Fw\Traits\Singleton;
-use Fw\Core\Config;
 
 class Template
 {
     use Singleton;
 
-    private static $template = null;
-    private static $header = null;
-    private static $footer = null;
+    private ?string $template = null;
+    private ?string $header = null;
+    private ?string $footer = null;
+    private ?Config $config = null;
 
     private function __construct()
     {
-        self::$template = Config::get('TEMPLATE');
-        self::$header = self::getPart("header");
-        self::$footer = self::getPart("footer");
+        $this->config = new Config();
+        $this->template = $this->config->get('TEMPLATE');
+        $this->header = $this->getPart("header");
+        $this->footer = $this->getPart("footer");
     }
 
-    public function getHeader()
+    public function getHeader(): ?string
     {
-        return self::$header;
+        return $this->header;
     }
 
-    public function getFooter()
+    public function getFooter(): ?string
     {
-        return self::$footer;
+        return $this->footer;
     }
 
-    public static function getPart($part) {
+    private function getPart(string $part)
+    {
         $fileName = ROOT_PATH . DIRECTORY_SEPARATOR . "templates" .
-            DIRECTORY_SEPARATOR . self::$template . DIRECTORY_SEPARATOR .
+            DIRECTORY_SEPARATOR . $this->template . DIRECTORY_SEPARATOR .
             $part . ".php";
         if (!file_exists($fileName)) {
             throw new \Error("File doesn't exist.");
         }
-        return file_get_contents($fileName);
+        return include $fileName;
     }
 }
-
