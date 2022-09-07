@@ -1,4 +1,6 @@
 <?php
 namespace Fw;
 
-const CONFIG = [];
+const CONFIG = [
+    'TEMPLATE' => 'default',
+];
