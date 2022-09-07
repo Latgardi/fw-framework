@@ -2,7 +2,7 @@
 namespace Fw\Core;
 use Fw\Traits\Singleton;
 use Fw\Core\Template as PageTemplate;
-use Fw\Core\Component\Template;
+
 final class Application
 {
     use Singleton;
@@ -46,6 +46,13 @@ final class Application
         return $this->server;
     }
 
+    public function includeComponent(string $component, string $template, array $params): void
+    {
+        $componentName = $this->getComponentName($component);
+        $component = new $componentName['path']($componentName['id'], $template, $params);
+        $component->executeComponent();
+    }
+
     public function restartBuffer(): void
     {
         ob_clean();
@@ -64,4 +71,12 @@ final class Application
         ob_start();
     }
 
+    public function getComponentName(string $component): array
+    {
+        $component = explode(':', $component);
+        str_replace('.', '_', $component[1]);
+        $path = "\\Fw\\Components\\" . $component[0] . "\\" . $component[1];
+        $id = $component[1];
+        return array('path' => $path, 'id' => $id);
+    }
 }

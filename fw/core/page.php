@@ -57,22 +57,37 @@ class Page
 
     public function showCss(): void
     {
-        foreach ($this->page['css'] as $link) {
-            echo "<link rel=\"stylesheet\" href=\"{$link}\">\n";
+        $css = $this->page['css'];
+        if (!isset($css)) {
+            echo "";
+        } else {
+            foreach ($this->page['css'] as $link) {
+                echo "<link rel=\"stylesheet\" href=\"{$link}\">\n";
+            }
         }
     }
 
     public function showJs(): void
     {
-        foreach ($this->page['js'] as $src) {
-            echo "<script src=\"{$src}\"></script>\n";
+        $js = $this->page['js'];
+        if (!isset($js)) {
+            echo "";
+        } else {
+            foreach ($this->page['js'] as $src) {
+                echo "<script src=\"{$src}\"></script>\n";
+            }
         }
     }
 
     public function showString(): void
     {
-        foreach ($this->page['string'] as $str) {
-            echo "{$str}\n";
+        $string = $this->page['string'];
+        if (!isset($string)) {
+            echo "";
+        } else {
+            foreach ($string as $str) {
+                echo "{$str}\n";
+            }
         }
     }
     public function showHead(): void
