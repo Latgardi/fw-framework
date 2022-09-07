@@ -2,7 +2,6 @@
 namespace Fw\Core;
 use Fw\Traits\Singleton;
 use Fw\Core\Template as PageTemplate;
-use Fw\Core\Component\Template;
 final class Application
 {
     use Singleton;
@@ -11,8 +10,6 @@ final class Application
     private ?Page $pager = null;
     private ?PageTemplate $template = null;
     private ?string $content = null;
-    private ?Request $request = null;
-    private ?Server $server = null;
 
     private function __construct()
     {
@@ -34,16 +31,6 @@ final class Application
         $footer = $this->template->getFooter();
         echo $footer;
         $this->endBuffer();
-    }
-
-    public function getRequest(): ?Request
-    {
-        return $this->request;
-    }
-
-    public function getServer(): ?Server
-    {
-        return $this->server;
     }
 
     public function restartBuffer(): void
