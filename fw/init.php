@@ -10,4 +10,3 @@ define("CORE_INIT", true);
 
 $app = Application::getInstance();
 
-

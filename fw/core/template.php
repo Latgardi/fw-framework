@@ -9,26 +9,21 @@ class Template
     use Singleton;
 
     private ?string $template = null;
-    private ?string $header = null;
-    private ?string $footer = null;
-    private ?Config $config = null;
 
     private function __construct()
     {
-        $this->config = new Config();
-        $this->template = $this->config->get('TEMPLATE');
-        $this->header = $this->getPart("header");
-        $this->footer = $this->getPart("footer");
+        $config = new Config();
+        $this->template = $config->get('TEMPLATE');
     }
 
-    public function getHeader(): ?string
+    public function getHeader(): void
     {
-        return $this->header;
+        $this->getPart("header");
     }
 
-    public function getFooter(): ?string
+    public function getFooter(): void
     {
-        return $this->footer;
+        $this->getPart("footer");
     }
 
     private function getPart(string $part)

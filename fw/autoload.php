@@ -11,7 +11,6 @@ function baseAutoloader($class): void
 
 function componentAutoloader($class): void
 {
-    echo 'COMPONENT';
     $filename = mb_strtolower($class);
     $filename = str_replace(array("\\", "_"), array(DIRECTORY_SEPARATOR, "."), $filename);
     $filename = $_SERVER["DOCUMENT_ROOT"] . DIRECTORY_SEPARATOR . $filename . DIRECTORY_SEPARATOR . ".class.php";
@@ -22,7 +21,6 @@ function componentAutoloader($class): void
     } catch (Exception $exception) {
         echo $exception;
     }
-
 }
 
 spl_autoload_register('baseAutoloader');

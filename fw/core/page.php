@@ -1,45 +1,51 @@
 <?php
 namespace Fw\Core;
 
+use Fw\Core\Config;
 use Fw\Traits\Singleton;
 
 class Page
 {
     use Singleton;
 
-    private array $page;
+    public array $page;
     public string $leftLimiter = '{{ ';
     public string $rightLimiter = ' }}';
 
-    public static function addJs(string $src): void
+    public function addJs(string $src, array $attributes = null): void
     {
-        self::getInstance()->addElement($src, 'js', true);
+       $this->addElement($src, 'js', $attributes, true);
     }
 
-    public static function addCss(string $link): void
+    public function addCss(string $link, array $attributes = null): void
     {
-        self::getInstance()->addElement($link, 'css', true);
+        $this->addElement($link, 'css', $attributes, true);
     }
 
-    public static function addString(string $str): void
+    public function addString(string $str): void
     {
-        self::getInstance()->addElement($str, 'string', false);
+        $this->addElement($str, 'string');
     }
 
-    public function setProperty(string $id, mixed $value): void
+    public static function setProperty(string $id, $value): void
     {
-        $this->page['properties'][$id] = $value;
+        self::getInstance()->page['properties'][] = [$id => $value];
     }
 
     public function getProperty(string $id): mixed
     {
-        return $this->page['properties'][$id];
+        foreach ($this->page['properties'] as $pair) {
+            if (array_keys($pair)[0] === $id) {
+                return $pair[$id];
+            }
+        }
+        return null;
     }
 
-    public function showProperty(string $id): void
+    public static function showProperty(string $id): void
     {
-        $macros = $this->leftLimiter . (string)($id) . $this->rightLimiter;
-        echo "<?={$macros}?>";
+        $macros = self::getInstance()->leftLimiter . (string)($id) . self::getInstance()->rightLimiter;
+        echo $macros;
     }
 
     public function getAllReplace(): ?array
@@ -55,61 +61,74 @@ class Page
         return $properties;
     }
 
-    public function showCss(): void
+    public static function showCss(): void
     {
-        $css = $this->page['css'];
-        if (!isset($css)) {
+        if (!isset(self::getInstance()->page['css'])) {
             echo "";
         } else {
-            foreach ($this->page['css'] as $link) {
-                echo "<link rel=\"stylesheet\" href=\"{$link}\">\n";
+            foreach (self::getInstance()->page['css'] as $css) {
+                $link = $css['src'];
+                $attributes = $css['attr'];
+                echo "<link rel=\"stylesheet\" href=\"{$link}\"";
+                foreach ($attributes as $attr => $value) {
+                    echo " {$attr}=\"{$value}\"";
+                }
+                echo ">\n";
             }
         }
     }
 
-    public function showJs(): void
+    public static function showJs(): void
     {
-        $js = $this->page['js'];
-        if (!isset($js)) {
+        if (!isset(self::getInstance()->page['js'])) {
             echo "";
         } else {
-            foreach ($this->page['js'] as $src) {
-                echo "<script src=\"{$src}\"></script>\n";
+            foreach (self::getInstance()->page['js'] as $js) {
+                $src = $js['src'];
+                $attributes = $js['attr'];
+                echo "<script src=\"{$src}\"";
+                foreach ($attributes as $attr => $value) {
+                    echo " {$attr}=\"{$value}\"";
+                }
+                echo ">\n";
             }
         }
     }
 
-    public function showString(): void
+    public static function showString(): void
     {
-        $string = $this->page['string'];
-        if (!isset($string)) {
+        if (!isset(self::getInstance()->page['string'])) {
             echo "";
         } else {
-            foreach ($string as $str) {
+            foreach (self::getInstance()->page['string'] as $str) {
                 echo "{$str}\n";
             }
         }
     }
-    public function showHead(): void
+    public static function showHead(): void
     {
-        $this->showCss();
-        $this->showString();
-        $this->showJs();
+        self::showCss();
+        self::showString();
+        self::showJs();
     }
 
-    private function addElement(string $src, string $type, bool $unique): void
+    private function addElement(string $src, string $type, array $attributes = null, bool $unique = false): void
     {
-        $type = $this->page[$type];
-        if (!isset($type)) {
-            $type = array();
+        if (!isset($this->page[$type])) {
+            $this->page[$type] = array();
         }
         if ($unique) {
             $hash = md5($src . $type);
-            if (!isset($this->$head['hash'])) {
-                $type[$hash] = $src;
+            if (!isset($this->page[$type]['hash'])) {
+                $this->page[$type][$hash]['src'] = $src;
+                if (isset($attributes)) {
+                    foreach ($attributes as $attr => $value) {
+                        $this->page[$type][$hash]['attr'][$attr] = $value;
+                    }
+                }
             }
         } else {
-            $type[] = $src;
+            $this->page[$type][] = $src;
         }
     }
 }

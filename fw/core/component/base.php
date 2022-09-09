@@ -1,6 +1,8 @@
 <?php
 namespace Fw\Core\Component;
 
+use Fw\Core\Application;
+
 abstract class Base
 {
     public array $result;
@@ -12,17 +14,14 @@ abstract class Base
     public function __construct(string $id, string $template, array $params)
     {
         $this->id = $id;
-        $this->__path = __DIR__;
-        $this->template = new Template($id, $template, $this->__path);
+        $this->__path = get_class($this);
+        $this->__path = mb_strtolower($this->__path);
+        $this->__path = str_replace('_', '.', $this->__path);
+        $this->template = new Template($id, $template);
         $this->params = $params;
     }
 
     // заполняет результирующий массив
-    abstract public function executeComponent();
+    abstract public function executeComponent(): void;
 
-    public function addResult(): void
-    {
-        $this->template->result = $this->result;
-        $this->template->params = $this->params;
-    }
 }
