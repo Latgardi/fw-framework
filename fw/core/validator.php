@@ -1,8 +1,6 @@
 <?php
 namespace Fw\Core;
 
-use http\Exception\RuntimeException;
-
 class Validator
 {
     private string $type;
