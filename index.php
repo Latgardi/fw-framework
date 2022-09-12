@@ -5,6 +5,8 @@ $app->header();
 <div class="card">
     <div class="card-body">
         <pre>
+            12.02.2022
+            1) добавлен класс Validator
             09.09.2022
             1) доработан шаблон формы
             08.09.2022
